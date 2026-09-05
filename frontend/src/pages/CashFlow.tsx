@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { AlertTriangle, TrendingUp, ChevronRight, Info } from 'lucide-react';
+import { AlertTriangle, TrendingUp, ArrowUpRight, ShieldCheck, Zap } from 'lucide-react';
 import { api } from '../api/client';
 import type { CashFlowForecastResponse } from '../types';
 import DashboardLayout from '../components/DashboardLayout';
@@ -117,85 +117,111 @@ export default function CashFlow() {
         {/* Header Summary */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h2 className="text-xl font-bold text-white tracking-tight">Cash Inflow Timeline Forecast</h2>
+            <h2 className="text-xl font-bold text-white tracking-tight flex items-center gap-2">
+              <TrendingUp size={20} className="text-purple-400" />
+              Cash Inflow Timeline Forecast & Pressure Engine
+            </h2>
             <p className="text-xs text-gray-500 mt-0.5">
-              Review cumulative expected cash receipts compared with upcoming liability demands.
+              Empirical probabilistic forecasting comparing anticipated receivables against scheduled operational obligations.
             </p>
           </div>
           
           {/* Days Switch */}
-          <div className="flex gap-1.5 p-1 bg-[#0E0E14] border border-[#161720] rounded-xl w-fit">
-            {([7, 15, 30, 60] as const).map(d => (
-              <button
-                key={d}
-                onClick={() => setDaysScope(d)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
-                  daysScope === d
-                    ? 'bg-purple-600 text-white shadow-[0_2px_8px_rgba(168,85,247,0.2)]'
-                    : 'text-gray-400 hover:text-gray-200'
-                }`}
-              >
-                {d} Days
-              </button>
-            ))}
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] text-gray-500 font-mono">FORECAST HORIZON:</span>
+            <div className="flex gap-1.5 p-1 bg-[#0E0E14] border border-[#161720] rounded-xl w-fit">
+              {([7, 15, 30, 60] as const).map(d => (
+                <button
+                  key={d}
+                  onClick={() => setDaysScope(d)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
+                    daysScope === d
+                      ? 'bg-purple-600 text-white shadow-[0_2px_8px_rgba(168,85,247,0.2)]'
+                      : 'text-gray-400 hover:text-gray-200'
+                  }`}
+                >
+                  {d} Days
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
         {/* Forecast Scenarios Stat Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Optimistic */}
-          <div className="p-5 rounded-2xl bg-[#0D0D13] border border-[#161720] flex flex-col justify-between">
+          <div className="p-5 rounded-2xl bg-gradient-to-br from-[#0A1612] via-[#09100D] to-[#080C0A] border border-emerald-500/20 flex flex-col justify-between shadow-lg">
             <div>
-              <div className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Optimistic Scenario (Earliest)</div>
-              <div className="text-2xl font-black text-emerald-400 mt-1.5 font-mono">
+              <div className="flex items-center justify-between">
+                <div className="text-[10px] text-emerald-400 font-bold uppercase tracking-wider">Optimistic Scenario (Earliest)</div>
+                <span className="text-[9px] font-mono px-2 py-0.5 rounded bg-emerald-950/60 text-emerald-300 border border-emerald-800/40 font-bold">
+                  BEST CASE
+                </span>
+              </div>
+              <div className="text-2xl font-black text-emerald-400 mt-2 font-mono">
                 {formatLakhs(scenariosData.optimistic)}
               </div>
             </div>
-            <div className="text-[9px] text-gray-500 mt-4 leading-relaxed flex gap-1 items-start">
-              <Info size={12} className="shrink-0 mt-0.5" />
-              <span>Receipts arriving on the earliest expected payment behavior boundaries.</span>
+            <div className="text-[10px] text-gray-400 mt-4 leading-relaxed flex gap-1.5 items-start border-t border-emerald-950/40 pt-3">
+              <ShieldCheck size={13} className="text-emerald-400 shrink-0 mt-0.5" />
+              <span>Receipts arriving on earliest buyer payment boundaries with prompt cash collection.</span>
             </div>
           </div>
 
           {/* Base */}
-          <div className="p-5 rounded-2xl bg-[#0D0D13] border border-[#161720] flex flex-col justify-between">
+          <div className="p-5 rounded-2xl bg-gradient-to-br from-[#120D22] via-[#0D0A18] to-[#090710] border border-purple-500/25 flex flex-col justify-between shadow-lg">
             <div>
-              <div className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Base Forecast (Median)</div>
-              <div className="text-2xl font-black text-purple-400 mt-1.5 font-mono">
+              <div className="flex items-center justify-between">
+                <div className="text-[10px] text-purple-300 font-bold uppercase tracking-wider">Base Forecast (Median Expected)</div>
+                <span className="text-[9px] font-mono px-2 py-0.5 rounded bg-purple-950/60 text-purple-300 border border-purple-800/40 font-bold">
+                  PRIMARY TARGET
+                </span>
+              </div>
+              <div className="text-2xl font-black text-white mt-2 font-mono">
                 {formatLakhs(scenariosData.base)}
               </div>
             </div>
-            <div className="text-[9px] text-gray-500 mt-4 leading-relaxed flex gap-1 items-start">
-              <Info size={12} className="shrink-0 mt-0.5" />
-              <span>Receivables expected at the historical median buyer payment speed.</span>
+            <div className="text-[10px] text-gray-400 mt-4 leading-relaxed flex gap-1.5 items-start border-t border-purple-950/40 pt-3">
+              <Zap size={13} className="text-purple-400 shrink-0 mt-0.5" />
+              <span>Receivables expected at empirical historical median buyer speeds.</span>
             </div>
           </div>
 
           {/* Pessimistic */}
-          <div className="p-5 rounded-2xl bg-[#0D0D13] border border-[#161720] flex flex-col justify-between">
+          <div className="p-5 rounded-2xl bg-gradient-to-br from-[#180C0E] via-[#12080A] to-[#0A0506] border border-rose-500/20 flex flex-col justify-between shadow-lg">
             <div>
-              <div className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Pessimistic Scenario (Latest)</div>
-              <div className="text-2xl font-black text-rose-400 mt-1.5 font-mono">
+              <div className="flex items-center justify-between">
+                <div className="text-[10px] text-rose-400 font-bold uppercase tracking-wider">Pessimistic Scenario (Delayed)</div>
+                <span className="text-[9px] font-mono px-2 py-0.5 rounded bg-rose-950/60 text-rose-300 border border-rose-800/40 font-bold">
+                  RISK BOUNDARY
+                </span>
+              </div>
+              <div className="text-2xl font-black text-rose-400 mt-2 font-mono">
                 {formatLakhs(scenariosData.pessimistic)}
               </div>
             </div>
-            <div className="text-[9px] text-gray-500 mt-4 leading-relaxed flex gap-1 items-start">
-              <Info size={12} className="shrink-0 mt-0.5" />
-              <span>Receipts delayed until latest historical payment boundary constraints.</span>
+            <div className="text-[10px] text-gray-400 mt-4 leading-relaxed flex gap-1.5 items-start border-t border-rose-950/40 pt-3">
+              <AlertTriangle size={13} className="text-rose-400 shrink-0 mt-0.5" />
+              <span>Delayed receipts arriving at latest historical payment constraint bounds.</span>
             </div>
           </div>
         </div>
 
         {/* Shaded Cumulative range chart */}
         <div className="p-6 rounded-2xl bg-[#08080C] border border-[#15151F]">
-          <div className="mb-4">
-            <h3 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
-              <TrendingUp size={14} className="text-purple-400" />
-              Cumulative cash inflow timeline forecast
-            </h3>
-            <p className="text-[11px] text-gray-500 mt-0.5">
-              Visualizes uncertainty bounds for inflow volumes across {daysScope} days.
-            </p>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+            <div>
+              <h3 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+                <TrendingUp size={14} className="text-purple-400" />
+                Cumulative Cash Inflow Forecast Envelope
+              </h3>
+              <p className="text-[11px] text-gray-500 mt-0.5">
+                Visualizes uncertainty bounds for inflow volumes across {daysScope} days horizon.
+              </p>
+            </div>
+            <div className="text-[10px] text-gray-500 font-mono">
+              CONFIDENCE ENVELOPE: <span className="text-purple-300 font-bold">±₹{( (scenariosData.optimistic - scenariosData.pessimistic) / 200000 ).toFixed(2)}L</span>
+            </div>
           </div>
 
           <div className="h-72 w-full">
@@ -203,15 +229,15 @@ export default function CashFlow() {
               <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="optColor" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#10B981" stopOpacity={0.08}/>
+                    <stop offset="5%" stopColor="#10B981" stopOpacity={0.15}/>
                     <stop offset="95%" stopColor="#10B981" stopOpacity={0.0}/>
                   </linearGradient>
                   <linearGradient id="baseColor" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#8B5CF6" stopOpacity={0.12}/>
+                    <stop offset="5%" stopColor="#8B5CF6" stopOpacity={0.2}/>
                     <stop offset="95%" stopColor="#8B5CF6" stopOpacity={0.0}/>
                   </linearGradient>
                   <linearGradient id="pessColor" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#EF4444" stopOpacity={0.08}/>
+                    <stop offset="5%" stopColor="#EF4444" stopOpacity={0.12}/>
                     <stop offset="95%" stopColor="#EF4444" stopOpacity={0.0}/>
                   </linearGradient>
                 </defs>
@@ -230,9 +256,9 @@ export default function CashFlow() {
                   formatter={(value: any) => [`₹${(Number(value) / 100000).toFixed(2)}L`, '']}
                 />
                 <Legend verticalAlign="top" height={36} iconType="circle" wrapperStyle={{ fontSize: '10px' }} />
-                <Area type="monotone" name="Optimistic" dataKey="optimistic" stroke="#10B981" strokeWidth={2} fill="url(#optColor)" />
-                <Area type="monotone" name="Base Prediction" dataKey="base" stroke="#8B5CF6" strokeWidth={2} fill="url(#baseColor)" />
-                <Area type="monotone" name="Pessimistic" dataKey="pessimistic" stroke="#EF4444" strokeWidth={2} fill="url(#pessColor)" />
+                <Area type="monotone" name="Optimistic (Best Case)" dataKey="optimistic" stroke="#10B981" strokeWidth={2} fill="url(#optColor)" />
+                <Area type="monotone" name="Base Forecast (Expected)" dataKey="base" stroke="#8B5CF6" strokeWidth={2} fill="url(#baseColor)" />
+                <Area type="monotone" name="Pessimistic (Risk Boundary)" dataKey="pessimistic" stroke="#EF4444" strokeWidth={2} fill="url(#pessColor)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -240,51 +266,65 @@ export default function CashFlow() {
 
         {/* Cash flow Pressure periods */}
         <div className="p-6 rounded-2xl bg-[#08080C] border border-[#15151F]">
-          <h3 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2 mb-6">
-            <AlertTriangle size={14} className="text-amber-400" />
-            Projected Cash-Flow Gaps / Pressure Periods
-          </h3>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
+              <AlertTriangle size={14} className="text-amber-400" />
+              Projected Cash-Flow Gaps / Pressure Periods ({filteredGaps.length})
+            </h3>
+            <span className="text-[10px] text-gray-500 font-mono">AUTO-DETECTED BOTTLENECKS</span>
+          </div>
 
           {filteredGaps.length > 0 ? (
             <div className="space-y-4">
               {filteredGaps.map((gap, i) => (
                 <div 
                   key={i}
-                  className="p-5 bg-rose-500/5 border border-rose-500/15 rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-4"
+                  className="p-5 bg-rose-500/5 border border-rose-500/20 rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-4 transition hover:border-rose-500/40"
                 >
-                  <div className="space-y-1 text-left">
-                    <h4 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
-                      <span className="h-1.5 w-1.5 rounded-full bg-rose-500 animate-pulse"></span>
+                  <div className="space-y-1.5 text-left">
+                    <h4 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                      <span className="h-2 w-2 rounded-full bg-rose-500 animate-pulse"></span>
                       Projected Gap: {gap.expense_name}
                     </h4>
-                    <p className="text-[11px] text-gray-400 mt-1 leading-relaxed">
-                      Due date:{' '}
-                      <span className="text-white font-medium">
+                    <p className="text-[11px] text-gray-400 leading-relaxed">
+                      Due Date:{' '}
+                      <strong className="text-white font-mono">
                         {new Date(gap.expense_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
-                      </span>{' '}
-                      • Cumulative Expenses: <span className="text-gray-300 font-mono">{formatINR(gap.cumulative_expenses)}</span> • Cumulative Inflows:{' '}
-                      <span className="text-gray-300 font-mono">{formatINR(gap.cumulative_inflow)}</span>.
+                      </strong>{' '}
+                      • Cumulative Expenses: <span className="text-gray-300 font-mono font-semibold">{formatINR(gap.cumulative_expenses)}</span> • Predicted Inflows:{' '}
+                      <span className="text-gray-300 font-mono font-semibold">{formatINR(gap.cumulative_inflow)}</span>.
                     </p>
-                    <div className="text-[10px] text-rose-300 font-medium pt-1.5">{gap.reason}</div>
+                    <div className="text-[11px] text-rose-300 font-medium bg-rose-950/40 p-2 rounded-lg border border-rose-800/30">
+                      <strong>Root Cause:</strong> {gap.reason}
+                    </div>
                   </div>
                   
-                  <div className="flex flex-col items-end gap-1.5 justify-center shrink-0">
+                  <div className="flex flex-col items-end gap-2 justify-center shrink-0">
                     <div className="text-[10px] text-gray-500 uppercase tracking-wider">Gap Amount</div>
-                    <div className="text-lg font-black text-rose-400 font-mono">{formatINR(gap.gap_amount)}</div>
-                    <button 
-                      onClick={() => navigate('/priorities')}
-                      className="mt-1 flex items-center gap-1 text-[10px] text-purple-400 font-bold uppercase tracking-wider hover:text-purple-300 cursor-pointer transition"
-                    >
-                      Review Priorities
-                      <ChevronRight size={12} />
-                    </button>
+                    <div className="text-xl font-black text-rose-400 font-mono">{formatINR(gap.gap_amount)}</div>
+                    <div className="flex gap-2">
+                      <button 
+                        onClick={() => navigate('/action-center')}
+                        className="px-3 py-1.5 bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs rounded-xl transition cursor-pointer shadow flex items-center gap-1"
+                      >
+                        Action Queue
+                        <ArrowUpRight size={13} />
+                      </button>
+                      <button 
+                        onClick={() => navigate('/priorities')}
+                        className="px-3 py-1.5 bg-[#14141E] hover:bg-[#1E1E2C] text-gray-300 text-xs font-semibold rounded-xl border border-[#242436] transition cursor-pointer"
+                      >
+                        Priorities
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="text-center py-8 text-xs text-gray-500 border border-dashed border-[#1B1B28] rounded-xl">
-              No cash-flow gap pressures projected within the selected {daysScope} days scope.
+            <div className="text-center py-8 text-xs text-gray-500 border border-dashed border-[#1B1B28] rounded-xl flex flex-col items-center gap-2">
+              <ShieldCheck size={28} className="text-emerald-400" />
+              <span>No cash-flow gap pressures projected within the selected {daysScope} days scope.</span>
             </div>
           )}
         </div>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AlertTriangle, Sparkles, ChevronRight, Info } from 'lucide-react';
+import { AlertTriangle, Sparkles, ChevronRight, Info, Layers } from 'lucide-react';
 import { api } from '../api/client';
 import type { PrioritiesResponse } from '../types';
 import DashboardLayout from '../components/DashboardLayout';
@@ -63,15 +63,28 @@ export default function Priorities() {
   };
 
   return (
-    <DashboardLayout pageTitle="Prioritized Accounts Receivable action Queue">
+    <DashboardLayout pageTitle="Prioritized Accounts Receivable Action Queue">
       <div className="space-y-6 text-left">
         
         {/* Header Summary */}
-        <div>
-          <h2 className="text-xl font-bold text-white tracking-tight">Receivables Action Queue</h2>
-          <p className="text-xs text-gray-500 mt-0.5">
-            Ranked queue prioritizes receivables threats based on cash gap impacts and negotiation windows.
-          </p>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h2 className="text-xl font-bold text-white tracking-tight flex items-center gap-2">
+              <Layers size={20} className="text-purple-400" />
+              Prioritized Receivables Threat & Opportunity Queue
+            </h2>
+            <p className="text-xs text-gray-500 mt-0.5">
+              Ranked queue prioritizing high-exposure receivables based on cash-flow gap impacts and negotiation leverage windows.
+            </p>
+          </div>
+
+          <button
+            onClick={() => navigate('/action-center')}
+            className="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl text-xs font-bold shadow transition cursor-pointer flex items-center gap-1.5 self-start md:self-auto"
+          >
+            <Sparkles size={14} />
+            Open Action Center
+          </button>
         </div>
 
         {/* Priority Summary Stat Grid */}
@@ -82,6 +95,7 @@ export default function Priorities() {
               <div className="text-xl font-black text-rose-400 mt-1.5 font-mono">
                 {formatLakhs(priorities.summary.high_risk_outstanding)}
               </div>
+              <div className="text-[10px] text-gray-500 mt-1 font-mono">Immediate risk exposure</div>
             </div>
 
             <div className="p-5 rounded-2xl bg-[#0D0D13] border border-[#161720]">
@@ -89,6 +103,7 @@ export default function Priorities() {
               <div className="text-xl font-black text-white mt-1.5 font-mono">
                 {priorities.summary.num_high_priority_invoices} Invoices
               </div>
+              <div className="text-[10px] text-gray-500 mt-1 font-mono">Top quadrant threats</div>
             </div>
 
             <div className="p-5 rounded-2xl bg-[#0D0D13] border border-[#161720]">
@@ -96,6 +111,7 @@ export default function Priorities() {
               <div className="text-xl font-black text-indigo-400 mt-1.5 font-mono">
                 {formatLakhs(priorities.summary.potential_opportunity_amount)}
               </div>
+              <div className="text-[10px] text-gray-500 mt-1 font-mono">Terms compression upside</div>
             </div>
 
             <div className="p-5 rounded-2xl bg-[#0D0D13] border border-[#161720]">
@@ -103,6 +119,7 @@ export default function Priorities() {
               <div className="text-xl font-black text-white mt-1.5 font-mono">
                 {priorities.summary.buyers_requiring_action} Accounts
               </div>
+              <div className="text-[10px] text-gray-500 mt-1 font-mono">Actionable relationships</div>
             </div>
           </div>
         )}
@@ -134,17 +151,24 @@ export default function Priorities() {
                       </span>
                       
                       <div className="min-w-0">
-                        <h4 className="text-xs font-bold text-white truncate">{item.buyer_name}</h4>
+                        <h4 className="text-xs font-bold text-white truncate flex items-center gap-2">
+                          {item.buyer_name}
+                          {idx === 0 && (
+                            <span className="px-2 py-0.5 rounded text-[9px] font-mono font-bold bg-purple-950/60 text-purple-300 border border-purple-800/40">
+                              TOP ATTENTION
+                            </span>
+                          )}
+                        </h4>
                         <div className="flex flex-wrap gap-2 items-center mt-1 text-[10px] text-gray-500">
-                          <span className="font-mono">{item.invoice_id}</span>
+                          <span className="font-mono text-purple-300">{item.invoice_id}</span>
                           <span>•</span>
-                          <span>Due date: {new Date(item.due_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</span>
+                          <span>Due date: <strong className="text-gray-300 font-mono">{new Date(item.due_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</strong></span>
                           {item.contributes_to_gap && (
                             <>
                               <span>•</span>
                               <span className="text-rose-400 font-bold uppercase flex items-center gap-1 font-mono">
                                 <AlertTriangle size={10} />
-                                Gaps bottleneck
+                                Direct Gap Bottleneck
                               </span>
                             </>
                           )}
@@ -162,7 +186,7 @@ export default function Priorities() {
                       <div className="hidden sm:block">
                         <div className="text-[10px] text-gray-500 font-mono">CASH IMPACT</div>
                         <span className={`px-2 py-0.5 rounded text-[9px] font-bold inline-block mt-0.5 ${
-                          item.cash_impact_level === 'HIGH' ? 'text-rose-400 bg-rose-500/10' : 'text-gray-400 bg-gray-500/10'
+                          item.cash_impact_level === 'HIGH' ? 'text-rose-400 bg-rose-500/10 border border-rose-500/20' : 'text-gray-400 bg-gray-500/10'
                         }`}>
                           {item.cash_impact_level} IMPACT
                         </span>
@@ -176,12 +200,12 @@ export default function Priorities() {
                       </div>
 
                       <div>
-                        <div className="text-[10px] text-gray-500 font-mono text-center">PRIORITY</div>
+                        <div className="text-[10px] text-gray-500 font-mono text-center">PRIORITY SCORE</div>
                         <div className="text-center mt-0.5">
-                          <span className={`px-2 py-0.5 rounded font-mono font-black text-xs ${
-                            item.priority_score >= 70 ? 'text-rose-400 bg-rose-500/10' : 'text-amber-400 bg-amber-500/10'
+                          <span className={`px-2.5 py-0.5 rounded font-mono font-black text-xs ${
+                            item.priority_score >= 70 ? 'text-rose-400 bg-rose-500/10 border border-rose-500/20' : 'text-amber-400 bg-amber-500/10 border border-amber-500/20'
                           }`}>
-                            {item.priority_score}
+                            {item.priority_score}/100
                           </span>
                         </div>
                       </div>
@@ -201,7 +225,9 @@ export default function Priorities() {
                     <div className="px-5 pb-5 pt-2 border-t border-[#1C1D2A] bg-[#0A0A0F]/60 space-y-4">
                       {/* Threat Explanations */}
                       <div>
-                        <div className="text-[10px] text-gray-500 uppercase tracking-wider font-bold mb-2">Why this invoice is ranked first</div>
+                        <div className="text-[10px] text-gray-500 uppercase tracking-wider font-bold mb-2">
+                          Why this invoice is ranked at priority #{idx + 1}
+                        </div>
                         <ul className="space-y-2">
                           {item.why_explanation.map((bullet, bIdx) => (
                             <li key={bIdx} className="text-xs text-gray-300 flex items-start gap-2 leading-relaxed">
@@ -219,12 +245,20 @@ export default function Priorities() {
                           <span>{item.action_explanation}</span>
                         </div>
                         
-                        <div className="flex gap-2.5">
+                        <div className="flex flex-wrap gap-2.5">
+                          <button 
+                            onClick={() => navigate(`/term-optimizer/${item.invoice_id}`)}
+                            className="px-3.5 py-2 bg-[#12121A] hover:bg-[#1C1C28] border border-[#232332] rounded-xl text-xs font-semibold text-purple-300 transition cursor-pointer flex items-center gap-1.5"
+                          >
+                            <Sparkles size={12} />
+                            Calibrate Terms
+                          </button>
+
                           <button 
                             onClick={() => navigate(`/receivables/${item.invoice_id}`)}
-                            className="px-4 py-2 bg-[#12121A] hover:bg-[#1C1C28] border border-[#232332] rounded-xl text-xs font-semibold text-white transition cursor-pointer"
+                            className="px-3.5 py-2 bg-[#12121A] hover:bg-[#1C1C28] border border-[#232332] rounded-xl text-xs font-semibold text-white transition cursor-pointer"
                           >
-                            Analyze Payment Scenarios
+                            Analyze Scenarios
                           </button>
                           
                           <button 
@@ -239,7 +273,7 @@ export default function Priorities() {
                             className="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl text-xs font-bold shadow-[0_2px_10px_rgba(168,85,247,0.25)] transition cursor-pointer flex items-center gap-1"
                           >
                             <Sparkles size={12} />
-                            Launch Negotiation Copilot
+                            Launch Copilot
                           </button>
                         </div>
                       </div>
@@ -253,6 +287,8 @@ export default function Priorities() {
           <EmptyState 
             title="Action Queue Empty"
             description="All active receivables are classified low-risk and no upcoming cash-flow gap thresholds are triggered."
+            actionLabel="View All Receivables"
+            onAction={() => navigate('/receivables')}
           />
         )}
 

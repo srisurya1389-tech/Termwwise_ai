@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import { ToastProvider } from './context/ToastContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 
 // Public & Landing
@@ -12,6 +13,8 @@ import ForgotPassword from './pages/Auth/ForgotPassword';
 
 // Admin Portal Pages (NovaCraft Manufacturing)
 import Dashboard from './pages/Dashboard';
+import ActionCenter from './pages/ActionCenter';
+import TermOptimizer from './pages/TermOptimizer';
 import Receivables from './pages/Receivables';
 import InvoiceDetail from './pages/InvoiceDetail';
 import Buyers from './pages/Buyers';
@@ -39,186 +42,212 @@ import './App.css';
 export default function App() {
   return (
     <AuthProvider>
-      <Router>
-        <Routes>
-          {/* Public Landing & Authentication */}
-          <Route path="/" element={<Landing />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<SignUp />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
+      <ToastProvider>
+        <Router>
+          <Routes>
+            {/* Public Landing & Authentication */}
+            <Route path="/" element={<Landing />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<SignUp />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
 
-          {/* ========================================================= */}
-          {/* ADMIN PORTAL (NovaCraft Manufacturing)                     */}
-          {/* ========================================================= */}
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute requiredRole="ADMIN">
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/receivables"
-            element={
-              <ProtectedRoute requiredRole="ADMIN">
-                <Receivables />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/receivables/:invoiceId"
-            element={
-              <ProtectedRoute requiredRole="ADMIN">
-                <InvoiceDetail />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/buyers"
-            element={
-              <ProtectedRoute requiredRole="ADMIN">
-                <Buyers />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/buyers/:buyerId"
-            element={
-              <ProtectedRoute requiredRole="ADMIN">
-                <BuyerDetail />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/cash-flow"
-            element={
-              <ProtectedRoute requiredRole="ADMIN">
-                <CashFlow />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/priorities"
-            element={
-              <ProtectedRoute requiredRole="ADMIN">
-                <Priorities />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/negotiations"
-            element={
-              <ProtectedRoute requiredRole="ADMIN">
-                <Negotiations />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/negotiations/:negotiationId"
-            element={
-              <ProtectedRoute requiredRole="ADMIN">
-                <NegotiationWorkspace />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/customer-requests"
-            element={
-              <ProtectedRoute requiredRole="ADMIN">
-                <AdminCustomerRequests />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/outcomes"
-            element={
-              <ProtectedRoute requiredRole="ADMIN">
-                <Outcomes />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/insights"
-            element={
-              <ProtectedRoute requiredRole="ADMIN">
-                <Insights />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/settings/integrations"
-            element={
-              <ProtectedRoute requiredRole="ADMIN">
-                <Integrations />
-              </ProtectedRoute>
-            }
-          />
+            {/* ========================================================= */}
+            {/* ADMIN PORTAL (NovaCraft Manufacturing)                     */}
+            {/* ========================================================= */}
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute requiredRole="ADMIN">
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/action-center"
+              element={
+                <ProtectedRoute requiredRole="ADMIN">
+                  <ActionCenter />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/term-optimizer"
+              element={
+                <ProtectedRoute requiredRole="ADMIN">
+                  <TermOptimizer />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/term-optimizer/:invoiceId"
+              element={
+                <ProtectedRoute requiredRole="ADMIN">
+                  <TermOptimizer />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/receivables"
+              element={
+                <ProtectedRoute requiredRole="ADMIN">
+                  <Receivables />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/receivables/:invoiceId"
+              element={
+                <ProtectedRoute requiredRole="ADMIN">
+                  <InvoiceDetail />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/buyers"
+              element={
+                <ProtectedRoute requiredRole="ADMIN">
+                  <Buyers />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/buyers/:buyerId"
+              element={
+                <ProtectedRoute requiredRole="ADMIN">
+                  <BuyerDetail />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/cash-flow"
+              element={
+                <ProtectedRoute requiredRole="ADMIN">
+                  <CashFlow />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/priorities"
+              element={
+                <ProtectedRoute requiredRole="ADMIN">
+                  <Priorities />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/negotiations"
+              element={
+                <ProtectedRoute requiredRole="ADMIN">
+                  <Negotiations />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/negotiations/:negotiationId"
+              element={
+                <ProtectedRoute requiredRole="ADMIN">
+                  <NegotiationWorkspace />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/customer-requests"
+              element={
+                <ProtectedRoute requiredRole="ADMIN">
+                  <AdminCustomerRequests />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/outcomes"
+              element={
+                <ProtectedRoute requiredRole="ADMIN">
+                  <Outcomes />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/insights"
+              element={
+                <ProtectedRoute requiredRole="ADMIN">
+                  <Insights />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/settings/integrations"
+              element={
+                <ProtectedRoute requiredRole="ADMIN">
+                  <Integrations />
+                </ProtectedRoute>
+              }
+            />
 
-          {/* ========================================================= */}
-          {/* CUSTOMER PORTAL (ABC Industries)                          */}
-          {/* ========================================================= */}
-          <Route
-            path="/customer/dashboard"
-            element={
-              <ProtectedRoute requiredRole="CUSTOMER">
-                <CustomerDashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/customer/invoices"
-            element={
-              <ProtectedRoute requiredRole="CUSTOMER">
-                <CustomerInvoices />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/customer/invoices/:id"
-            element={
-              <ProtectedRoute requiredRole="CUSTOMER">
-                <CustomerInvoiceDetail />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/customer/payments"
-            element={
-              <ProtectedRoute requiredRole="CUSTOMER">
-                <CustomerPayments />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/customer/requests"
-            element={
-              <ProtectedRoute requiredRole="CUSTOMER">
-                <CustomerRequests />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/customer/notifications"
-            element={
-              <ProtectedRoute requiredRole="CUSTOMER">
-                <CustomerNotifications />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/customer/profile"
-            element={
-              <ProtectedRoute requiredRole="CUSTOMER">
-                <CustomerProfile />
-              </ProtectedRoute>
-            }
-          />
+            {/* ========================================================= */}
+            {/* CUSTOMER PORTAL (ABC Industries)                          */}
+            {/* ========================================================= */}
+            <Route
+              path="/customer/dashboard"
+              element={
+                <ProtectedRoute requiredRole="CUSTOMER">
+                  <CustomerDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/customer/invoices"
+              element={
+                <ProtectedRoute requiredRole="CUSTOMER">
+                  <CustomerInvoices />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/customer/invoices/:id"
+              element={
+                <ProtectedRoute requiredRole="CUSTOMER">
+                  <CustomerInvoiceDetail />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/customer/payments"
+              element={
+                <ProtectedRoute requiredRole="CUSTOMER">
+                  <CustomerPayments />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/customer/requests"
+              element={
+                <ProtectedRoute requiredRole="CUSTOMER">
+                  <CustomerRequests />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/customer/notifications"
+              element={
+                <ProtectedRoute requiredRole="CUSTOMER">
+                  <CustomerNotifications />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/customer/profile"
+              element={
+                <ProtectedRoute requiredRole="CUSTOMER">
+                  <CustomerProfile />
+                </ProtectedRoute>
+              }
+            />
 
-          {/* Wildcard Fallback */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </Router>
+            {/* Wildcard Fallback */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Router>
+      </ToastProvider>
     </AuthProvider>
   );
 }
