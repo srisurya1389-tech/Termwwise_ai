@@ -1,0 +1,30 @@
+# Exclude environment configuration and secrets
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Python build and cache artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.unittest_cache/
+*.egg-info/
+dist/
+build/
+venv/
+.venv/
+env/
+ENV/
+
+# Database
+*.db
+*.sqlite3
+
+# Node / Frontend
+node_modules/
+frontend/node_modules/
+frontend/dist/
+.DS_Store
+Thumbs.db

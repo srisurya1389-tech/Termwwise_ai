@@ -1,0 +1,18 @@
+buyer_name,invoice_id,invoice_amount,invoice_date,agreed_payment_days,due_date,actual_payment_date,payment_status
+ABC Industries,INV-A01,145000,2026-01-05,60,2026-03-06,2026-03-08,Paid
+ABC Industries,INV-A02,155000,2026-02-10,60,2026-04-11,2026-04-13,Paid
+ABC Industries,INV-A03,165000,2026-03-15,60,2026-05-14,2026-05-16,Paid
+ABC Industries,INV-102,320000,2026-08-01,90,2026-10-30,,Outstanding
+Metro Retail,INV-M01,85000,2026-01-10,30,2026-02-09,2026-02-09,Paid
+Metro Retail,INV-M02,95000,2026-02-15,30,2026-03-17,2026-03-17,Paid
+Metro Retail,INV-M03,105000,2026-03-20,30,2026-04-19,2026-04-19,Paid
+Metro Retail,INV-M04,120000,2026-08-15,30,2026-09-14,,Outstanding
+Sunrise Distributors,INV-S01,210000,2026-01-01,30,2026-01-31,2026-03-02,Paid
+Sunrise Distributors,INV-S02,220000,2026-02-01,30,2026-03-03,2026-04-07,Paid
+Sunrise Distributors,INV-S03,230000,2026-03-05,30,2026-04-04,2026-05-14,Paid
+Sunrise Distributors,INV-S04,250000,2026-07-10,30,2026-08-09,,Overdue
+Vertex Solutions,INV-V01,320000,2026-01-12,30,2026-02-11,2026-01-27,Paid
+Vertex Solutions,INV-V02,330000,2026-02-20,30,2026-03-22,2026-03-12,Paid
+Vertex Solutions,INV-V03,340000,2026-03-25,30,2026-04-24,2026-04-09,Paid
+Vertex Solutions,INV-V04,350000,2026-08-20,30,2026-09-19,,Outstanding
+Prime Hardware,INV-P01,180000,2026-08-22,30,2026-09-21,,Outstanding
