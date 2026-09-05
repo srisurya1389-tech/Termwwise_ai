@@ -5,7 +5,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
 from backend.database.connection import get_db, init_db
-from backend.api import invoices, buyers, forecasts, risks, negotiations, outcomes, integrations, payments
+from backend.api import (
+    invoices, buyers, forecasts, risks, negotiations, outcomes, integrations, payments,
+    customer, admin_requests
+)
 from backend.services import outcome_service
 
 
@@ -13,9 +16,10 @@ app = FastAPI(
     title="TermWise AI API",
     description=(
         "Production-style API backend for TermWise AI, exposing predictive "
-        "buyer payment intelligence, optimization ranges, and automated negotiation strategies."
+        "buyer payment intelligence, optimization ranges, automated negotiation strategies, "
+        "and customer portal endpoints."
     ),
-    version="1.0.0"
+    version="1.1.0"
 )
 
 # --- CORS Configuration ---
@@ -34,8 +38,6 @@ app.add_middleware(
 # --- Global Exception Handler (Hide Stack Traces) ---
 @app.exception_handler(Exception)
 def global_exception_handler(request: Request, exc: Exception):
-    # Log the internal error details locally (optional, can print for dev logs)
-    # But return a clean HTTP 500 response without stack traces
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         content={"detail": "An internal server error occurred. Please contact the administrator."}
@@ -73,6 +75,7 @@ def reset_demo_database():
 
 
 # --- Register API Routers ---
+# Admin Business Intelligence Routers
 app.include_router(invoices.router)
 app.include_router(buyers.router)
 app.include_router(forecasts.router)
@@ -81,7 +84,10 @@ app.include_router(negotiations.router)
 app.include_router(outcomes.router)
 app.include_router(integrations.router)
 app.include_router(payments.router)
+app.include_router(admin_requests.router)
 
+# Customer Portal Routers
+app.include_router(customer.router)
 
 
 # Initialize tables when starting up the app (in development SQLite mode)

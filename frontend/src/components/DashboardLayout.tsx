@@ -16,9 +16,13 @@ import {
   ChevronLeft,
   ChevronRight,
   Bell,
-  Zap
+  Zap,
+  ClipboardList,
+  LogOut,
+  ArrowRightLeft
 } from 'lucide-react';
 import { api } from '../api/client';
+import { useAuth } from '../context/AuthContext';
 import type { Invoice, Buyer, RazorpayStatus } from '../types';
 import WalkthroughTour from './WalkthroughTour';
 
@@ -29,6 +33,7 @@ interface DashboardLayoutProps {
 }
 
 export default function DashboardLayout({ children, pageTitle }: DashboardLayoutProps) {
+  const { user, logout } = useAuth();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -40,12 +45,14 @@ export default function DashboardLayout({ children, pageTitle }: DashboardLayout
 
   const [resetting, setResetting] = useState(false);
   const [razorpayStatus, setRazorpayStatus] = useState<RazorpayStatus | null>(null);
+  const [pendingRequestsCount, setPendingRequestsCount] = useState<number>(0);
 
   const location = useLocation();
   const navigate = useNavigate();
 
   useEffect(() => {
     api.getRazorpayStatus().then(setRazorpayStatus).catch(() => {});
+    api.getAdminRequests('PENDING').then(reqs => setPendingRequestsCount(reqs.length)).catch(() => {});
   }, []);
 
   const handleResetDemo = async () => {
@@ -69,6 +76,7 @@ export default function DashboardLayout({ children, pageTitle }: DashboardLayout
     { name: 'Cash Flow', path: '/cash-flow', icon: LineChart },
     { name: 'Priorities', path: '/priorities', icon: AlertTriangle },
     { name: 'Negotiations', path: '/negotiations', icon: MessageSquare },
+    { name: 'Customer Requests', path: '/admin/customer-requests', icon: ClipboardList, badge: pendingRequestsCount },
     { name: 'Outcomes', path: '/outcomes', icon: Trophy },
     { name: 'Insights', path: '/insights', icon: Lightbulb },
     { name: 'Integrations', path: '/settings/integrations', icon: Zap },
@@ -158,14 +166,21 @@ export default function DashboardLayout({ children, pageTitle }: DashboardLayout
               <Link
                 key={item.name}
                 to={item.path}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group text-sm ${
+                className={`flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 group text-sm ${
                   isActive
                     ? 'bg-gradient-to-r from-purple-950/40 to-indigo-950/20 text-purple-300 font-medium border-l-2 border-purple-500 pl-[14px]'
                     : 'text-gray-400 hover:text-gray-200 hover:bg-[#12121A]/60'
                 }`}
               >
-                <Icon size={18} className={isActive ? 'text-purple-400' : 'text-gray-400 group-hover:text-gray-200'} />
-                {!sidebarCollapsed && <span>{item.name}</span>}
+                <div className="flex items-center gap-3">
+                  <Icon size={18} className={isActive ? 'text-purple-400' : 'text-gray-400 group-hover:text-gray-200'} />
+                  {!sidebarCollapsed && <span>{item.name}</span>}
+                </div>
+                {!sidebarCollapsed && item.badge !== undefined && item.badge > 0 && (
+                  <span className="px-2 py-0.5 text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-full animate-pulse">
+                    {item.badge}
+                  </span>
+                )}
               </Link>
             );
           })}
@@ -246,23 +261,44 @@ export default function DashboardLayout({ children, pageTitle }: DashboardLayout
                     key={item.name}
                     to={item.path}
                     onClick={() => setMobileMenuOpen(false)}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 text-sm ${
+                    className={`flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 text-sm ${
                       isActive
                         ? 'bg-purple-950/30 text-purple-300 font-semibold'
                         : 'text-gray-400 hover:text-gray-200'
                     }`}
                   >
-                    <Icon size={18} />
-                    <span>{item.name}</span>
+                    <div className="flex items-center gap-3">
+                      <Icon size={18} />
+                      <span>{item.name}</span>
+                    </div>
+                    {item.badge !== undefined && item.badge > 0 && (
+                      <span className="px-2 py-0.5 text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-full">
+                        {item.badge}
+                      </span>
+                    )}
                   </Link>
                 );
               })}
             </nav>
-            <div className="pt-4 border-t border-[#15151F] mt-auto">
-              <div className="p-3 bg-purple-950/20 border border-purple-900/40 rounded-xl flex items-center gap-2 mb-4">
-                <Database size={14} className="text-purple-400" />
-                <span className="text-[10px] font-mono text-purple-300 font-bold">DEMO DATA ACTIVE</span>
-              </div>
+            <div className="pt-4 border-t border-[#15151F] mt-auto space-y-2">
+              <Link
+                to="/customer/dashboard"
+                onClick={() => setMobileMenuOpen(false)}
+                className="w-full flex items-center justify-center gap-2 py-2 px-3 bg-indigo-950/40 hover:bg-indigo-900/50 border border-indigo-500/30 rounded-xl text-xs font-semibold text-indigo-300 transition"
+              >
+                <ArrowRightLeft size={14} />
+                Switch to Customer Portal
+              </Link>
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  logout().then(() => navigate('/login'));
+                }}
+                className="w-full flex items-center justify-center gap-2 py-2 px-3 bg-red-950/20 hover:bg-red-900/30 border border-red-900/30 rounded-xl text-xs font-semibold text-red-400 transition"
+              >
+                <LogOut size={14} />
+                Sign Out
+              </button>
             </div>
           </div>
         </div>
@@ -274,17 +310,26 @@ export default function DashboardLayout({ children, pageTitle }: DashboardLayout
         <div className="bg-[#130E26] border-b border-purple-500/20 py-2 px-6 flex items-center justify-between text-xs text-purple-300 shrink-0">
           <div className="flex items-center gap-2">
             <span className="h-1.5 w-1.5 rounded-full bg-purple-400 animate-ping"></span>
-            <span className="font-bold tracking-wider font-mono text-[10px]">DEMO MODE</span>
+            <span className="font-bold tracking-wider font-mono text-[10px]">ADMIN PORTAL</span>
             <span className="text-gray-600">|</span>
-            <span>Active Business: <strong className="text-white">NovaCraft Manufacturing</strong> (Small Manufacturing SME) • Synthetic Demo Data</span>
+            <span>Active Business: <strong className="text-white">NovaCraft Manufacturing</strong> • Logged in as: <strong className="text-purple-200">{user?.full_name || 'Admin'}</strong></span>
           </div>
-          <button 
-            onClick={handleResetDemo}
-            disabled={resetting}
-            className="px-2.5 py-1 bg-purple-900 hover:bg-purple-800 disabled:opacity-50 text-white rounded-lg font-bold font-mono text-[9px] tracking-wider uppercase cursor-pointer transition shadow"
-          >
-            {resetting ? 'Resetting...' : 'Reset Demo'}
-          </button>
+          <div className="flex items-center gap-2">
+            <Link
+              to="/customer/dashboard"
+              className="px-2.5 py-1 bg-indigo-950/60 hover:bg-indigo-900/80 border border-indigo-500/30 text-indigo-300 hover:text-white rounded-lg font-mono text-[10px] tracking-wider uppercase transition flex items-center gap-1.5"
+            >
+              <ArrowRightLeft size={11} />
+              Customer View
+            </Link>
+            <button 
+              onClick={handleResetDemo}
+              disabled={resetting}
+              className="px-2.5 py-1 bg-purple-900 hover:bg-purple-800 disabled:opacity-50 text-white rounded-lg font-bold font-mono text-[9px] tracking-wider uppercase cursor-pointer transition shadow"
+            >
+              {resetting ? 'Resetting...' : 'Reset Demo'}
+            </button>
+          </div>
         </div>
         {/* Topbar */}
         <header className="h-16 border-b border-[#15151F] bg-[#0A0A0E]/60 backdrop-blur-md px-6 flex items-center justify-between sticky top-0 z-20">
@@ -292,7 +337,7 @@ export default function DashboardLayout({ children, pageTitle }: DashboardLayout
             <h1 className="text-lg font-bold text-white tracking-tight">{pageTitle}</h1>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             {/* Search Trigger */}
             <div className="relative">
               <button 
@@ -373,18 +418,32 @@ export default function DashboardLayout({ children, pageTitle }: DashboardLayout
             {/* Notification alert Bell */}
             <button className="p-2 rounded-xl bg-[#12121A] hover:bg-[#1A1A26] border border-[#1C1D26] text-gray-400 hover:text-gray-200 transition relative">
               <Bell size={14} />
-              <span className="absolute top-1 right-1 h-1.5 w-1.5 rounded-full bg-amber-500"></span>
+              {pendingRequestsCount > 0 && (
+                <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-amber-400 animate-pulse"></span>
+              )}
             </button>
 
-            {/* User Profile Info */}
+            {/* User Profile & Logout */}
             <div className="flex items-center gap-2 pl-2 border-l border-[#15151F]">
-              <div className="h-7 w-7 rounded-lg bg-purple-900/30 border border-purple-700/30 flex items-center justify-center text-purple-400 font-bold text-xs">
-                JD
+              <div className="h-8 w-8 rounded-xl bg-purple-950/60 border border-purple-500/40 flex items-center justify-center text-purple-300 font-bold text-xs shadow-inner">
+                {user?.full_name ? user.full_name.slice(0, 2).toUpperCase() : 'AD'}
               </div>
               <div className="hidden lg:block text-left">
-                <div className="text-xs font-semibold text-white">Judge Demo</div>
-                <div className="text-[10px] text-purple-400 font-mono">FINANCIAL AUDITOR</div>
+                <div className="text-xs font-semibold text-white truncate max-w-[130px]">
+                  {user?.full_name || 'Admin User'}
+                </div>
+                <div className="text-[10px] text-purple-400 font-mono flex items-center gap-1">
+                  <span className="h-1.5 w-1.5 rounded-full bg-purple-400"></span>
+                  ADMIN ROLE
+                </div>
               </div>
+              <button
+                onClick={() => logout().then(() => navigate('/login'))}
+                title="Sign Out"
+                className="p-1.5 ml-1 text-gray-400 hover:text-red-400 hover:bg-red-950/20 rounded-lg transition"
+              >
+                <LogOut size={16} />
+              </button>
             </div>
           </div>
         </header>

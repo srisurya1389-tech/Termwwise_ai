@@ -19,10 +19,11 @@ def init_db():
     Initialize SQLite database and create all tables.
     """
     # Import models here to ensure they are registered with Base metadata
-    from backend.models.buyer import Buyer
-    from backend.models.invoice import Invoice
-    from backend.models.negotiation import Negotiation
-    from backend.models.outcome import Outcome
+    from backend.models import (
+        Buyer, Invoice, Negotiation, Outcome,
+        Payment, PaymentAuditLog, Company, UserProfile,
+        PaymentRequest, CustomerNotification
+    )
     
     Base.metadata.create_all(bind=engine)
 

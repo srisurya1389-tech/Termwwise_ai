@@ -1,7 +1,7 @@
 import csv
 import json
 import os
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 from backend.database.connection import SessionLocal, init_db, engine
 from backend.models.base import Base
 from backend.models.buyer import Buyer
@@ -9,8 +9,8 @@ from backend.models.invoice import Invoice
 from backend.models.negotiation import Negotiation
 from backend.models.outcome import Outcome
 from backend.models.payment import Payment, PaymentAuditLog
+from backend.models.customer_portal import Company, UserProfile, PaymentRequest, CustomerNotification
 from backend.services.payment_reconciliation import reconcile_all_invoices
-
 
 
 def parse_date(date_str):
@@ -49,7 +49,17 @@ def seed_database():
         db.close()
         return
 
-    # 2. Seed Buyers and Invoices from CSV
+    # 2. Seed Company
+    print("Seeding company entity...")
+    company = Company(
+        id=1,
+        name="NovaCraft Manufacturing",
+        business_email="finance@novacraft.com"
+    )
+    db.add(company)
+    db.commit()
+
+    # 3. Seed Buyers and Invoices from CSV
     print(f"Parsing base invoices from {csv_path}...")
     buyers_cache = {}  # buyer_name -> Buyer object
     
@@ -88,9 +98,34 @@ def seed_database():
             db.add(invoice)
             
     db.commit()
+
+    # Add additional demo customer invoices for ABC Industries (Stage 13)
+    abc_buyer = buyers_cache.get("ABC Industries")
+    if abc_buyer:
+        inv109 = Invoice(
+            invoice_id="INV-109",
+            buyer_id=abc_buyer.id,
+            amount=180000.0,
+            invoice_date=date(2026, 8, 10),
+            agreed_payment_days=60,
+            due_date=date(2026, 10, 9),
+            payment_status="Outstanding"
+        )
+        inv115 = Invoice(
+            invoice_id="INV-115",
+            buyer_id=abc_buyer.id,
+            amount=240000.0,
+            invoice_date=date(2026, 8, 20),
+            agreed_payment_days=60,
+            due_date=date(2026, 10, 19),
+            payment_status="Outstanding"
+        )
+        db.add_all([inv109, inv115])
+        db.commit()
+
     print("CSV invoices successfully seeded.")
 
-    # 3. Seed Synthetic Demo Outcomes and Negotiations from JSON
+    # 4. Seed Synthetic Demo Outcomes and Negotiations from JSON
     if os.path.exists(outcomes_path):
         print(f"Parsing synthetic outcomes from {outcomes_path}...")
         with open(outcomes_path, mode="r", encoding="utf-8") as f:
@@ -115,9 +150,8 @@ def seed_database():
             # Get or create invoice
             invoice = db.query(Invoice).filter(Invoice.invoice_id == inv_id).first()
             if not invoice:
-                # Construct synthetic invoice
                 inv_date = parse_date(out.get("negotiation_start_date")) or date(2026, 8, 1)
-                due_date = inv_date # Dummy fallback
+                due_date = inv_date
                 invoice = Invoice(
                     invoice_id=inv_id,
                     buyer_id=buyer.id,
@@ -178,7 +212,6 @@ def seed_database():
                 db.add(invoice)
                 
             elif out["negotiation_status"] == "REJECTED":
-                # Create outcome for rejected negotiation
                 outcome = Outcome(
                     negotiation_id=negotiation.id,
                     invoice_id=inv_id,
@@ -197,12 +230,11 @@ def seed_database():
         db.commit()
         print("Synthetic JSON outcomes successfully seeded.")
 
-    # 4. Seed Synthetic Demo Payments and Reconcile Invoices (Stage 10)
+    # 5. Seed Synthetic Demo Payments and Reconcile Invoices (Stage 10)
     print("Parsing and generating synthetic demo payment records...")
     invoices = db.query(Invoice).all()
     for inv in invoices:
         if inv.payment_status.lower() == "paid":
-            # Create a full settlement payment for paid invoices
             pay_date = inv.actual_payment_date or inv.due_date or date.today()
             payment = Payment(
                 payment_id=f"demo_pay_{inv.invoice_id}",
@@ -216,14 +248,12 @@ def seed_database():
             )
             db.add(payment)
 
-    # Add realistic Partial Payment scenario
-    # Find XYZ Manufacturing invoice (or second invoice) to showcase partial payment
-    xyz_inv = db.query(Invoice).join(Buyer).filter(Buyer.name.like("%XYZ%"), Invoice.payment_status != "Paid").first()
+    # Partial payment showcase on XYZ / second invoice
+    xyz_inv = db.query(Invoice).join(Buyer).filter(Buyer.name.like("%Sunrise%"), Invoice.payment_status != "Paid").first()
     if not xyz_inv:
         xyz_inv = db.query(Invoice).filter(Invoice.payment_status != "Paid").first()
 
     if xyz_inv:
-        # Create two partial payments
         part1 = round(xyz_inv.amount * 0.35, 2)
         part2 = round(xyz_inv.amount * 0.40, 2)
         
@@ -247,23 +277,93 @@ def seed_database():
             payment_date=date(2026, 8, 20),
             source="DEMO"
         )
-        # Also add a failed payment attempt to demonstrate failed status handling
-        p3 = Payment(
-            payment_id=f"demo_pay_failed_{xyz_inv.invoice_id}",
-            invoice_id=xyz_inv.invoice_id,
-            buyer_id=xyz_inv.buyer_id,
-            amount=round(xyz_inv.amount * 0.25, 2),
-            currency="INR",
-            status="FAILED",
-            payment_date=date(2026, 8, 25),
-            source="DEMO"
-        )
-        db.add_all([p1, p2, p3])
+        db.add_all([p1, p2])
 
-    # Add an initial audit log entry
+    # 6. Seed Profiles, Payment Requests, and Notifications (Stage 13)
+    print("Seeding user profiles and customer portal data...")
+    abc_buyer_entity = db.query(Buyer).filter(Buyer.name.like("%ABC%")).first()
+    abc_id = abc_buyer_entity.id if abc_buyer_entity else 1
+
+    admin_profile = UserProfile(
+        id=1,
+        email="admin@novacraft.com",
+        full_name="NovaCraft Finance Admin",
+        role="ADMIN",
+        company_id=1,
+        buyer_id=None
+    )
+    customer_profile = UserProfile(
+        id=2,
+        email="customer@abcindustries.com",
+        full_name="ABC Industries Finance Desk",
+        role="CUSTOMER",
+        company_id=1,
+        buyer_id=abc_id
+    )
+    db.add_all([admin_profile, customer_profile])
+    db.commit()
+
+    # Initial Customer Payment Requests
+    req1 = PaymentRequest(
+        invoice_id="INV-109",
+        buyer_id=abc_id,
+        company_id=1,
+        customer_id=customer_profile.id,
+        current_term=60,
+        requested_term=75,
+        requested_date=date(2026, 10, 24),
+        reason="Supply chain quarterly procurement alignment",
+        message="Requesting a 15-day extension to align with our quarterly raw material delivery milestone.",
+        status="PENDING"
+    )
+    req2 = PaymentRequest(
+        invoice_id="INV-S04",
+        buyer_id=3, # Sunrise Distributors
+        company_id=1,
+        customer_id=None,
+        current_term=30,
+        requested_term=60,
+        requested_date=date(2026, 9, 8),
+        reason="Working capital liquidity management",
+        message="Requesting 60 days net terms for the monsoon batch order.",
+        status="COUNTEROFFER",
+        counter_term=45,
+        counter_date=date(2026, 8, 24),
+        counter_message="We can offer 45 days net terms to support your operations while maintaining baseline cash flow."
+    )
+    db.add_all([req1, req2])
+
+    # Initial Customer Notifications
+    n1 = CustomerNotification(
+        buyer_id=abc_id,
+        user_id=customer_profile.id,
+        title="Welcome to Customer Portal",
+        message="View your invoices, download payment receipts, and submit payment term requests directly.",
+        type="SYSTEM",
+        read=True
+    )
+    n2 = CustomerNotification(
+        buyer_id=abc_id,
+        user_id=customer_profile.id,
+        title="Invoice INV-102 Available",
+        message="New invoice INV-102 (₹3,20,000) has been posted to your account. Contractual due date: Oct 30, 2026.",
+        type="INVOICE",
+        read=False
+    )
+    n3 = CustomerNotification(
+        buyer_id=abc_id,
+        user_id=customer_profile.id,
+        title="Extension Request In Review",
+        message="Your extension request for INV-109 (75 days) is being reviewed by NovaCraft finance.",
+        type="REQUEST",
+        read=False
+    )
+    db.add_all([n1, n2, n3])
+
+    # Add initial audit log entry
     audit_init = PaymentAuditLog(
         event_type="SYSTEM_INIT",
-        message="TermWise AI Payment Layer Initialized in DEMO Mode. Synthetic payment data loaded.",
+        message="TermWise AI Dual-Role Platform Initialized (Admin + Customer Portal).",
         status="INFO"
     )
     db.add(audit_init)
@@ -277,7 +377,6 @@ def seed_database():
     print("=" * 55)
     print(" DATABASE SEEDING COMPLETED SUCCESSFULLY!")
     print("=" * 55)
-
 
 
 if __name__ == "__main__":

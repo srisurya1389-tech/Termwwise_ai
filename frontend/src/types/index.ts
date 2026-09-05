@@ -34,7 +34,6 @@ export interface Invoice {
   created_at: string;
 }
 
-
 export interface ScenarioComparison {
   proposed_term: number;
   expected_payment_date: string;
@@ -60,7 +59,7 @@ export interface Negotiation {
   invoice_id: string;
   buyer_id: number;
   round: number;
-  status: string; // INITIAL, WAITING_FOR_RESPONSE, AGREED, REJECTED, BOUNDARY_EXCEEDED, etc.
+  status: string;
   target_term: number;
   fallback_term: number;
   boundary_term: number;
@@ -254,3 +253,96 @@ export interface AuditLog {
   created_at: string;
 }
 
+// ============================================================================
+// CUSTOMER PORTAL & AUTH TYPES
+// ============================================================================
+
+export type UserRole = 'ADMIN' | 'CUSTOMER';
+
+export interface UserProfile {
+  id: number | string;
+  supabase_user_id?: string | null;
+  email: string;
+  full_name: string;
+  role: UserRole;
+  company_id?: number | null;
+  buyer_id?: number | null;
+  company_name?: string | null;
+  buyer_name?: string | null;
+  created_at?: string;
+}
+
+export interface CustomerInvoiceItem {
+  invoice_id: string;
+  amount: number;
+  paid_amount: number;
+  outstanding_amount: number;
+  invoice_date: string;
+  agreed_payment_days: number;
+  due_date: string;
+  payment_status: 'Paid' | 'Outstanding' | 'Overdue' | 'Partially Paid';
+  days_until_due: number;
+  has_active_request: boolean;
+}
+
+export interface CustomerPaymentItem {
+  payment_id: string;
+  invoice_id: string;
+  amount: number;
+  currency: string;
+  status: string;
+  payment_date: string;
+  source: string;
+}
+
+export interface PaymentRequest {
+  id: number;
+  invoice_id: string;
+  buyer_id: number;
+  buyer_name: string;
+  company_id?: number | null;
+  customer_id?: number | null;
+  current_term: number;
+  requested_term: number;
+  requested_date?: string | null;
+  reason: string;
+  message?: string | null;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'COUNTEROFFER';
+  counter_term?: number | null;
+  counter_date?: string | null;
+  counter_message?: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CustomerInvoiceDetail extends CustomerInvoiceItem {
+  buyer_name: string;
+  payments: CustomerPaymentItem[];
+  active_request?: PaymentRequest | null;
+}
+
+export interface CustomerNotification {
+  id: number;
+  user_id?: number | string | null;
+  buyer_id?: number | null;
+  title: string;
+  message: string;
+  type: 'INVOICE' | 'PAYMENT' | 'REQUEST' | 'SYSTEM';
+  read: boolean;
+  created_at: string;
+}
+
+export interface CustomerDashboardSummary {
+  customer_name: string;
+  company_name: string;
+  buyer_id: number;
+  total_outstanding: number;
+  total_paid: number;
+  upcoming_due_30d: number;
+  open_invoices_count: number;
+  overdue_count: number;
+  recent_payments: CustomerPaymentItem[];
+  upcoming_invoices: CustomerInvoiceItem[];
+  pending_requests_count: number;
+  unread_notifications_count: number;
+}

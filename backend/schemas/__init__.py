@@ -7,6 +7,13 @@ from backend.schemas.payment import (
     PaymentTimelineItem, PaymentTimeline, BuyerPaymentAnalysis, PaymentImportResponse
 )
 from backend.schemas.integration import RazorpayStatusResponse, AuditLogResponse
+from backend.schemas.customer_portal import (
+    CompanyResponse, CompanyCreate,
+    UserProfileResponse, UserProfileCreate, UserProfileUpdate,
+    CustomerInvoiceItem, CustomerInvoiceDetail, CustomerPaymentItem,
+    PaymentRequestCreate, PaymentRequestResponse, AdminRespondRequest, CustomerRespondCounter,
+    CustomerNotificationResponse, CustomerDashboardSummary
+)
 
 __all__ = [
     "BuyerBase", "BuyerCreate", "BuyerResponse", "BuyerDetailResponse", "BuyerIntelligence",
@@ -14,6 +21,10 @@ __all__ = [
     "NegotiationBase", "NegotiationCreate", "NegotiationResponse", "ResponseInput", "ResponseAnalysisResponse", "ActionDetails",
     "OutcomeBase", "OutcomeCreate", "OutcomeResponse",
     "PaymentBase", "PaymentCreate", "PaymentResponse", "PaymentTimelineItem", "PaymentTimeline",
-    "BuyerPaymentAnalysis", "PaymentImportResponse", "RazorpayStatusResponse", "AuditLogResponse"
+    "BuyerPaymentAnalysis", "PaymentImportResponse", "RazorpayStatusResponse", "AuditLogResponse",
+    "CompanyResponse", "CompanyCreate",
+    "UserProfileResponse", "UserProfileCreate", "UserProfileUpdate",
+    "CustomerInvoiceItem", "CustomerInvoiceDetail", "CustomerPaymentItem",
+    "PaymentRequestCreate", "PaymentRequestResponse", "AdminRespondRequest", "CustomerRespondCounter",
+    "CustomerNotificationResponse", "CustomerDashboardSummary"
 ]
-

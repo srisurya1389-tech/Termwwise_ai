@@ -188,6 +188,101 @@ export const api = {
     });
   },
 
+  // Customer Portal (Stage 12)
+  getCustomerDashboard: (email?: string) => {
+    const query = email ? `?email=${encodeURIComponent(email)}` : '';
+    return request<import('../types').CustomerDashboardSummary>(`/api/customer/dashboard${query}`);
+  },
+
+  getCustomerInvoices: (status?: string, email?: string) => {
+    const params = new URLSearchParams();
+    if (status) params.append('status', status);
+    if (email) params.append('email', email);
+    const query = params.toString() ? `?${params.toString()}` : '';
+    return request<import('../types').CustomerInvoiceItem[]>(`/api/customer/invoices${query}`);
+  },
+
+  getCustomerInvoiceDetail: (invoiceId: string, email?: string) => {
+    const query = email ? `?email=${encodeURIComponent(email)}` : '';
+    return request<import('../types').CustomerInvoiceDetail>(`/api/customer/invoices/${invoiceId}${query}`);
+  },
+
+  getCustomerPayments: (email?: string) => {
+    const query = email ? `?email=${encodeURIComponent(email)}` : '';
+    return request<import('../types').CustomerPaymentItem[]>(`/api/customer/payments${query}`);
+  },
+
+  getCustomerRequests: (email?: string) => {
+    const query = email ? `?email=${encodeURIComponent(email)}` : '';
+    return request<import('../types').PaymentRequest[]>(`/api/customer/requests${query}`);
+  },
+
+  createPaymentRequest: (
+    data: {
+      invoice_id: string;
+      requested_term: number;
+      requested_date?: string;
+      reason: string;
+      message?: string;
+    },
+    email?: string
+  ) => {
+    const query = email ? `?email=${encodeURIComponent(email)}` : '';
+    return request<import('../types').PaymentRequest>(`/api/customer/requests${query}`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  respondToCounteroffer: (
+    requestId: number,
+    data: { action: 'ACCEPT' | 'REJECT'; message?: string },
+    email?: string
+  ) => {
+    const query = email ? `?email=${encodeURIComponent(email)}` : '';
+    return request<import('../types').PaymentRequest>(`/api/customer/requests/${requestId}/respond${query}`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  getCustomerNotifications: (email?: string) => {
+    const query = email ? `?email=${encodeURIComponent(email)}` : '';
+    return request<import('../types').CustomerNotification[]>(`/api/customer/notifications${query}`);
+  },
+
+  markNotificationRead: (notificationId: number, email?: string) => {
+    const query = email ? `?email=${encodeURIComponent(email)}` : '';
+    return request<{ status: string; message: string }>(`/api/customer/notifications/${notificationId}/read${query}`, {
+      method: 'POST',
+    });
+  },
+
+  getUserProfile: (email: string, role: string = 'CUSTOMER') => {
+    const query = `?email=${encodeURIComponent(email)}&role=${encodeURIComponent(role)}`;
+    return request<import('../types').UserProfile>(`/api/customer/profile${query}`);
+  },
+
+  // Admin Customer Requests
+  getAdminRequests: (status?: string) => {
+    const query = status ? `?status=${encodeURIComponent(status)}` : '';
+    return request<import('../types').PaymentRequest[]>(`/api/admin/requests${query}`);
+  },
+
+  adminRespondRequest: (
+    requestId: number,
+    data: {
+      action: 'APPROVE' | 'REJECT' | 'COUNTEROFFER';
+      counter_term?: number;
+      counter_date?: string;
+      counter_message?: string;
+    }
+  ) =>
+    request<import('../types').PaymentRequest>(`/api/admin/requests/${requestId}/respond`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
   // Demo Control
   resetDemo: () =>
     request<{ status: string; message: string }>('/api/demo/reset', {
