@@ -119,6 +119,13 @@ export default function NegotiationWorkspace() {
         status: res.negotiation_status,
         buyer_latest_offer: res.detected_term_days
       } : null);
+
+      if (res.detected_term_days) {
+        setOutcomeAgreedTerm(res.detected_term_days);
+        if (res.detected_term_days === 75) {
+          setOutcomePaymentDays(64);
+        }
+      }
     } catch (err) {
       console.error('Response analysis failed', err);
       alert('Analysis failed. Try a simpler numeric offer text.');
@@ -386,22 +393,34 @@ export default function NegotiationWorkspace() {
                 {/* Templates Helper */}
                 <div className="flex flex-wrap gap-2 pt-1">
                   <button 
-                    onClick={() => loadTemplate("We can agree to 75 days payment terms.")}
-                    className="px-2.5 py-1 bg-[#12121A] hover:bg-[#1A1A26] border border-[#1C1D26] rounded-lg text-[10px] text-gray-400 transition cursor-pointer"
+                    onClick={() => {
+                      loadTemplate("We can only offer 75 days.");
+                      setOutcomeAgreedTerm(75);
+                      setOutcomePaymentDays(64);
+                    }}
+                    className="px-2.5 py-1 bg-[#12121A] hover:bg-[#1A1A26] border border-[#1C1D26] hover:border-purple-500/40 rounded-lg text-[10px] text-gray-300 hover:text-purple-300 transition cursor-pointer font-medium"
                   >
-                    Offer 75 Days (Fallback)
+                    Simulate: "We can only offer 75 days." (Primary Demo)
                   </button>
                   <button 
-                    onClick={() => loadTemplate("Our company policy requires 90 days.")}
-                    className="px-2.5 py-1 bg-[#12121A] hover:bg-[#1A1A26] border border-[#1C1D26] rounded-lg text-[10px] text-gray-400 transition cursor-pointer"
-                  >
-                    Offer 90 Days (Boundary exceeded)
-                  </button>
-                  <button 
-                    onClick={() => loadTemplate("Yes, we can agree to 60 days terms.")}
-                    className="px-2.5 py-1 bg-[#12121A] hover:bg-[#1A1A26] border border-[#1C1D26] rounded-lg text-[10px] text-gray-400 transition cursor-pointer"
+                    onClick={() => {
+                      loadTemplate("Yes, we can agree to 60 days terms.");
+                      setOutcomeAgreedTerm(60);
+                      setOutcomePaymentDays(62);
+                    }}
+                    className="px-2.5 py-1 bg-[#12121A] hover:bg-[#1A1A26] border border-[#1C1D26] hover:border-purple-500/40 rounded-lg text-[10px] text-gray-300 hover:text-purple-300 transition cursor-pointer font-medium"
                   >
                     Accept 60 Days (Target)
+                  </button>
+                  <button 
+                    onClick={() => {
+                      loadTemplate("Our company policy strictly requires 90 days.");
+                      setOutcomeAgreedTerm(90);
+                      setOutcomePaymentDays(90);
+                    }}
+                    className="px-2.5 py-1 bg-[#12121A] hover:bg-[#1A1A26] border border-[#1C1D26] hover:border-rose-500/40 rounded-lg text-[10px] text-gray-300 hover:text-rose-300 transition cursor-pointer font-medium"
+                  >
+                    Reject 90 Days (Boundary)
                   </button>
                 </div>
 

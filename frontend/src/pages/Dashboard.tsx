@@ -248,6 +248,33 @@ export default function Dashboard() {
           </div>
         </div>
 
+        {/* Primary Call to Action Banner */}
+        <div className="p-5 rounded-2xl bg-gradient-to-r from-purple-950/40 via-indigo-950/30 to-[#0F0F18] border border-purple-500/30 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xl">
+          <div className="flex items-center gap-3.5">
+            <div className="h-10 w-10 rounded-xl bg-purple-600/20 border border-purple-500/30 flex items-center justify-center text-purple-400 shrink-0">
+              <Sparkles size={20} />
+            </div>
+            <div>
+              <div className="text-[10px] font-mono font-bold text-purple-300 uppercase tracking-wider">Primary Next Step</div>
+              <h4 className="text-sm font-bold text-white mt-0.5">
+                {summary?.high_priority_invoice_count 
+                  ? `${summary.high_priority_invoice_count} Priority Receivables Require Immediate Review`
+                  : 'Review Priority Receivables Queue'}
+              </h4>
+              <p className="text-xs text-gray-400 mt-0.5">
+                Action high-impact invoices to resolve upcoming cash-flow gaps and secure optimized payment terms.
+              </p>
+            </div>
+          </div>
+          <button 
+            onClick={() => navigate('/priorities')}
+            className="px-5 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 shadow-lg shadow-purple-900/30 cursor-pointer shrink-0 active:scale-95"
+          >
+            <span>Review Priority Receivables</span>
+            <ArrowRight size={14} />
+          </button>
+        </div>
+
         {/* Cash Flow Gaps Alert Area */}
         {primaryGap && primaryGap.gap_amount > 0 && (
           <div id="tour-gap-alert" className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 flex flex-col md:flex-row md:items-center justify-between gap-4">

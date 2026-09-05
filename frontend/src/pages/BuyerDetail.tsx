@@ -152,7 +152,7 @@ export default function BuyerDetail() {
         </button>
 
         {/* Profile Summary Banner */}
-        <div className="p-6 rounded-2xl bg-[#08080C] border border-[#15151F] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div id="tour-buyer-profile" className="p-6 rounded-2xl bg-[#08080C] border border-[#15151F] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1">
             <h2 className="text-2xl font-black text-white">{buyer.name}</h2>
             <div className="text-xs text-gray-500 font-mono">

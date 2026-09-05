@@ -172,7 +172,7 @@ export default function InvoiceDetail() {
           <div className="lg:col-span-2 space-y-6">
             
             {/* Metadata Fields */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-5 rounded-2xl bg-[#08080C] border border-[#15151F]">
+            <div id="tour-prediction" className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-5 rounded-2xl bg-[#08080C] border border-[#15151F]">
               <div>
                 <div className="text-[10px] text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
                   <Calendar size={12} />

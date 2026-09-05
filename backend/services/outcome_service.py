@@ -106,18 +106,22 @@ def get_dashboard_summary(db: Session):
     db_outcomes = db.query(Outcome).all()
     outcomes_list = []
     for out in db_outcomes:
+        inv = db.query(Invoice).filter(Invoice.invoice_id == out.invoice_id).first()
+        inv_amount = inv.amount if inv else 100000.0
+        orig_term = inv.agreed_payment_days if inv else 90
+        buyer_name = out.buyer.name if out.buyer else (inv.buyer.name if inv and inv.buyer else "Unknown")
+        status = out.negotiation.status if out.negotiation else "AGREED"
         outcomes_list.append({
-            "buyer_name": out.buyer.name,
+            "buyer_name": buyer_name,
             "invoice_id": out.invoice_id,
-            "original_invoice_amount": out.negotiation.buyer.invoices[0].amount,  # dummy fallback or look up
-            "original_payment_term": out.negotiation.target_term, # fallback
+            "original_invoice_amount": inv_amount,
+            "original_payment_term": orig_term,
             "final_agreed_term": out.final_agreed_term,
-            "negotiation_status": out.negotiation.status,
+            "negotiation_status": status,
             "actual_payment_days": out.actual_payment_days,
             "original_predicted_payment_days": out.predicted_payment_days,
             "cash_flow_gap_before": out.cash_flow_gap_before,
             "cash_flow_gap_after": out.cash_flow_gap_after,
-            "original_invoice_amount": 100000.0 # dummy
         })
 
     # Run system performance calculator
